@@ -93,7 +93,12 @@ int main(int argc, char* argv[])
         int width, height, comps;
         int req_comps = 4;
         unsigned char * buffer = stbi_load(filepath.c_str(), &width, &height, &comps, req_comps);
-        stbi_write_png("res/textures/gray.png", width, height, req_comps, convertToGrayscale(buffer, width, height), width * comps);
+        unsigned char* impress=convertToGrayscale(buffer, width, height);
+        for(int i = 0 ; i<111 ; i++){
+            impress=convertToGrayscale(impress, width, height);
+        }
+        
+        stbi_write_png("res/textures/gray.png", width, height, req_comps,impress, width * comps);
         stbi_write_png("res/textures/edge.png", width, height, req_comps, Canny_Edge_Detector(buffer, width, height), width * comps);
         stbi_write_png("res/textures/halftone.png", width*2, height*2, req_comps, convertToHalftone(buffer, width, height), width * comps);
         stbi_write_png("res/textures/floyd.png", width, height, req_comps, convertToFloyd(buffer, width, height), width * comps);
