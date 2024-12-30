@@ -11,17 +11,16 @@
 #include <Shader.h>
 #include <Texture.h>
 #include <Camera.h>
-#include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
-#include "./assignment1.h"
 #include <iostream>
+#include "RayTrace.h"
+#include <stb/stb_image_write.h>
 
 /* Window size */
 const unsigned int width = 800;
 const unsigned int height = 800;
 // const float FOVdegree = 45.0f;  // Field Of View Angle
 const float near = 0.1f;
-const float far = 100.0f;
+const float far = 1000.0f;
 
 /* Shape vertices coordinates with positions, colors, and corrected texCoords */
 float vertices[] = {
@@ -40,6 +39,11 @@ unsigned int indices[] = {
 
 int main(int argc, char* argv[])
 {
+    RayTrace r;
+    unsigned char* data = r.GenerateImage("res/Scenes/scene1.txt");
+    stbi_write_png("res/textures/scene.png", width, height, 4,data, width * 4);
+    free(data);
+    
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -89,29 +93,9 @@ int main(int argc, char* argv[])
         layout.Push<float>(3);  // colors
         layout.Push<float>(2);  // texCoords
         va.AddBuffer(vb, layout);
-        std::string filepath = "res/textures/Lenna.png";
-        int width, height, comps;
-        int req_comps = 4;
-        unsigned char * buffer = stbi_load(filepath.c_str(), &width, &height, &comps, req_comps);
-        stbi_write_png("res/textures/gray.png", width, height, req_comps, convertToGrayscale(buffer, width, height), width * comps);
-        stbi_write_png("res/textures/edge.png", width, height, req_comps, Canny_Edge_Detector(buffer, width, height), width * comps);
-        stbi_write_png("res/textures/halftone.png", width*2, height*2, req_comps, convertToHalftone(buffer, width, height), width * comps);
-        stbi_write_png("res/textures/floyd.png", width, height, req_comps, convertToFloyd(buffer, width, height), width * comps);
-        unsigned char * data = convertToHalftone(buffer, width, height);
-        int counter = 0;
-        FILE* f = fopen("../halftone.txt", "w");
-        for(int i = 0;i<width*2;i++){
-            for(int j = 0;j<width*2;j++){
-                fprintf(f, "%x, ", data[counter]);
-                counter+=4;
-            }   
-            fprintf(f, "%\n");
-        }
         /* Create texture */
-        Texture texture1("res/textures/gray.png");
-        Texture texture2("res/textures/edge.png");
-        Texture texture3("res/textures/halftone.png");
-        Texture texture4("res/textures/floyd.png");
+        Texture texture("res/textures/scene.png");
+        texture.Bind();
          
         /* Create shaders */
         Shader shader("res/shaders/real.shader");
@@ -142,45 +126,25 @@ int main(int argc, char* argv[])
 
             /* Initialize uniform color */
             glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
-            /* Initialize view and projection matrices */
+
+             /* Initialize the model Translate, Rotate and Scale matrices */
+            glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+            glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f));
+            glm::mat4 scl = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
+
+            /* Initialize the MVP matrices */ 
+            glm::mat4 model = trans * rot * scl;
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 proj = camera.GetProjectionMatrix();
+            glm::mat4 mvp = proj * view * model;
 
-            /* Render first texture (top-left) */
-            texture1.Bind();
-            glm::mat4 trans1 = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, 0.5f, -1.0f));
-            glm::mat4 scl1 = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-            glm::mat4 mvp1 = proj * view * (trans1 * scl1);
+            /* Update shaders paramters and draw to the screen */
             shader.Bind();
             shader.SetUniform4f("u_Color", color);
-            shader.SetUniformMat4f("u_MVP", mvp1);
+            shader.SetUniformMat4f("u_MVP", mvp);
             shader.SetUniform1i("u_Texture", 0);
             va.Bind();
             ib.Bind();
-            GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-
-            /* Render second texture (top-right) */
-            texture2.Bind();
-            glm::mat4 trans2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, -1.0f));
-            glm::mat4 scl2 = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-            glm::mat4 mvp2 = proj * view * (trans2 * scl2);
-            shader.SetUniformMat4f("u_MVP", mvp2);
-            GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-
-            /* Render third texture (bottom-left) */
-            texture3.Bind();
-            glm::mat4 trans3 = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f, -0.5f, -1.0f));
-            glm::mat4 scl3 = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-            glm::mat4 mvp3 = proj * view * (trans3 * scl3);
-            shader.SetUniformMat4f("u_MVP", mvp3);
-            GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-
-            /* Render fourth texture (bottom-right) */
-            texture4.Bind();
-            glm::mat4 trans4 = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, -0.5f, -1.0f));
-            glm::mat4 scl4 = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
-            glm::mat4 mvp4 = proj * view * (trans4 * scl4);
-            shader.SetUniformMat4f("u_MVP", mvp4);
             GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 
             /* Swap front and back buffers */
