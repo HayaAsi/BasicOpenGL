@@ -70,3 +70,5 @@ copy_res_l:
 
 # Parallel build (add -jN option to run with N jobs)
 .PHONY: all copy_res_m copy_res_w
+clean:
+	rm -f /bin/*.o

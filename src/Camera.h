@@ -12,10 +12,11 @@
 
 #include <Debugger.h>
 #include <Shader.h>
-
+#include "RubikCube.h"
+class RubikCube;
 class Camera
 {
-    private:
+    public:
         // View and Projection
         glm::mat4 m_View = glm::mat4(1.0f);
         glm::mat4 m_Projection = glm::mat4(1.0f);
@@ -31,23 +32,41 @@ class Camera
         int m_Width;
         int m_Height;
 
+        // Perspective Projection parameters
+        float m_FOVdegree = 45.0f;
+        float m_Aspect = 1.0f;
+
         // Orthographic Projection parameters
-        float m_Left = -1.0f;
-        float m_Right = 1.0f;
-        float m_Bottom = -1.0f; 
-        float m_Top = 1.0f;
-    public:
+        float m_Left = -1.0f * 2.0f;
+        float m_Right = 1.0f * 2.0f;
+        float m_Bottom = -1.0f * 2.0f; 
+        float m_Top = 1.0f * 2.0f;
+        RubikCube& cube;
         // Prevent the camera from jumping around when first clicking left click
         double m_OldMouseX = 0.0;
         double m_OldMouseY = 0.0;
         double m_NewMouseX = 0.0;
         double m_NewMouseY = 0.0;
-    public:
-        Camera(int width, int height)
-            : m_Width(width), m_Height(height) {};
 
+        // Adjust the speed of the camera and it's sensitivity when looking around
+        float m_KeySensitivity = 0.4f;
+        float m_MouseSensitivity = 0.05f;
+        float m_ScrollSensitivity = 1.0f;
+    
+        Camera(int width, int height, RubikCube& cube)
+            : m_Width(width), m_Height(height), cube(cube) {};
+
+        // Update Projection matrix for Perspective mode
+        void SetPerspective(float FOVdegree, float near, float far);
+        void setPosition(glm::vec3 position);
         // Update Projection matrix for Orthographic mode
         void SetOrthographic(float near, float far);
+
+        void TranslateProjection(glm::vec3 trans);
+        void TranslateView(glm::vec3 trans);
+
+        void RotateProjection(float angle, glm::vec3 rot);
+        void RotateView(float angle, glm::vec3 rot);
 
         // Handle camera inputs
         void EnableInputs(GLFWwindow* window);

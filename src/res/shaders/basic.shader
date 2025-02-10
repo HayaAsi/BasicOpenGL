@@ -12,9 +12,9 @@ uniform mat4 u_MVP;
 
 void main()
 {
-	gl_Position = u_MVP *  vec4(position.x, position.y, position.z, 1.0);
-	v_Color = vec4(color.x, color.y, color.z, 1.0);
-	v_TexCoord = texCoord;
+    gl_Position = u_MVP * vec4(position.x, position.y, position.z, 1.0);
+    v_Color = vec4(color.x, color.y, color.z, 1.0);
+    v_TexCoord = texCoord;
 }
 
 #shader fragment
@@ -27,10 +27,21 @@ in vec2 v_TexCoord;
 
 uniform vec4 u_Color;
 uniform sampler2D u_Texture;
+uniform int u_PickingMode;
+uniform int u_IsPicked;
 
 void main()
 {
-	vec4 texColor = texture(u_Texture, v_TexCoord) * u_Color;
-	// gl_FragColor = texColor * v_Color;  // Deprecated
-	FragColor = texColor * v_Color;
+    if (u_PickingMode == 1) {
+        // Picking mode: Use the uniform color only
+        FragColor = u_Color;
+    } else {
+        vec4 texColor = texture(u_Texture, v_TexCoord) * u_Color;
+        
+        if (u_IsPicked == 1) {
+            FragColor = texColor * v_Color * vec4(0.7, 0.7, 0.7, 1.0); // Darken the original color
+        } else {
+            FragColor = texColor * v_Color; // Normal color
+        }
+    }
 }

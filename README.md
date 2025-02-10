@@ -1,148 +1,52 @@
-# Basic OpenGL
+# Rubik's Cube OpenGL Assignment
 
+## Changes
+This document outlines the key modifications and improvements made to various files in the project.
 
-## How to install "make" command and C/C++ compilers:
+### **Makefile**
+- **Added `make clean` target** to remove compiled binaries and temporary files, ensuring a clean build environment.
 
+### **main.cpp**
+- **Created a RubikCube instance** and set up rendering.
+- **Applied shaders** to handle object rendering and color transformations.
+- **Modified the infinite rendering loop** to continuously display the cube and handle user interactions.
 
-### For Windows:
+### **camera.cpp**
+- **Added callbacks** for handling user input:
+  - **Mouse movement** to control the camera perspective.
+  - **Mouse scroll** to zoom in and out.
+  - **Mouse press** to select a cube for manipulation.
+- **Implemented function calls for RubikCube interactions**:
+  - **Rotation functions** to turn different walls of the cube.
+  - **Angle adjustments** for smoother animations.
+  - **Clockwise/counterclockwise rotations** to provide flexible cube transformations.
 
-1. Install `Chocolatey` from following website: \
-   https://chocolatey.org/install
+### **RubikCube.cpp**
+- **Implemented core Rubik's Cube logic**:
+  - Defined rotation mechanics for each cube wall.
+  - Managed cube transformations using OpenGL matrices.
+  - Integrated the picking mechanism to interact with specific cube parts.
+- **Enhanced animation and real-time updates** for a smoother user experience.
 
-2. After finishing the installation run the following command on the CMD (Run as adimistrator):
-   ```
-   choco install make
-   ```
+### **basic.shader**
+- **Implemented picking highlight**:
+  - If an object is selected, it appears darker than the rest.
+- **Added picking mode for special color selection**:
+  - Used a unique color mapping technique for object selection.
+- **Ensured normal rendering mode works correctly**:
+  - Objects render with their correct textures and colors when not in picking mode.
 
-3. To install the C/C++ compilers go to the following website: \
-   https://code.visualstudio.com/docs/cpp/config-mingw
-
-4. Follow the guide on how to install the C/C++ Compiler and validate that they are installed by running the following commands on the CMD:
-   ```
-   gcc --version
-   g++ --version
-   ```
-
-
-### For MacOS:
-
-1. Install `Xcode Command Line Tools` using the following command on the Terminal:
-   ```
-   xcode-select --install
-   ```
-
-2. (Optional) Install `brew` from following website: \
-   https://brew.sh/
-
-3. (Optional) Install with `brew` the `GLFW` library using the following command on the Terminal:
-   ```
-   brew install glfw
-   ```
-
-
-## For Linux:
-
-1. (Optional) Update the Linux OS using the following command on the Terminal:
-   ```
-   sudo apt update
-   ```
-
-2. Install `g++` using the following command on the Terminal:
-   ```
-   sudo apt install build-essential g++
-   ```
-
-3. Install `OpenGL` and `GLFW` using the following command on the Terminal:
-   ```
-   sudo apt install libgl-dev libglfw3-dev libxi-dev
-   ```
-
-
-## How to compile and run the OpenGL Engine using the Makefile:
-
-
-### Using the CMD/Terminal:
-
-1. Open the CMD/Terminal.
-
-2. Navigate to the project folder using `cd` commands.
-
-3. Run the following command:
-   ```
+## **How to Build and Run**
+1. **Build the project:**
+   ```sh
    make
    ```
-
-4. Run the following commands:
-   ```
+2. **Run the application:**
+   ```sh
    cd bin
    ./main
    ```
-
-
-### Using Visual Studio Code:
-
-1. Download Visual Studio Code from: \
-   https://code.visualstudio.com/download
-
-2. Download the `C/C++ Extension Pack` from the Visual Studio Code Extensions or from: \
-   https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack
-
-3. Download the `Makefile Tools Extension` from the Visual Studio Code Extensions or from: \
-   https://marketplace.visualstudio.com/items?itemName=ms-vscode.makefile-tools
-
-4. Configure the `Makefile Tools Extension` to compile the engine: using the available [Makefile](Makefile):
-
-   1. Edit the `Makefile` option, and set `The path to the makefile of the project` as: `Makefile`.
-
-   2. Click on the `...` button near the `Play` button, and then choose: `Makefile:Configure`.
-
-   3. Edit the `Lunch target` option, and choose the first option: `main()`.
-
-   4. Click on the `Play` button and validate that the program compiles and runs successfully.
-
-`Notice:` With this tool you can run the OpenGL in Debugging mode as well.
-
-
-## MacOS known issue with "libglfw.3.dylib" file:
-
-The MacOS tends to block the file: "libglfw.3.dylib" which is crucial for running the OpenGL Engine. 
-To remove the block, open the MacOS "Settings", go to "Privacy & Security", scroll down until you find the "libglfw.3.dylib" and choose to enable permission for it.
-
-
-## Useful guides for building the OpenGL Engine:
-
-- For Windows: \
-  https://www.youtube.com/watch?v=hRInLNR9iRg
-
-- For MacOS: \
-  https://www.youtube.com/watch?v=7-dL6a5_B3I
-
-- For Linux: \
-  https://www.youtube.com/watch?v=JxDLGHil-Cw
-
-
-## Useful YouTube guides:
-
-- The Cherno: \
-  https://www.youtube.com/watch?v=W3gAzLwfIP0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2
-
-- Victor Gordan: \
-  https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-
-
-
-## Library sources:
-
-- GLFW: \
-  https://www.glfw.org/
-
-- GLAD: \
-  https://glad.dav1d.de/
-
-- GLEW (Not used, But works similar to GLAD): \
-  https://glew.sourceforge.net/
-
-- stb: \
-  https://github.com/nothings/stb
-
-- glm: \
-  https://github.com/g-truc/glm/releases/tag/1.0.1
+3. **Clean up compiled files:**
+   ```sh
+   make clean
+   ```
